@@ -3,13 +3,16 @@ package com.revature;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,6 +44,7 @@ public class FileIntegrationTests extends PointWatcher {
 	
 	@BeforeClass
 	public static void setupFileLocations() {
+		
 		UserDaoFile.fileLocation = "target/integrationTests/users";
 		AccountDaoFile.fileLocation = "target/integrationTests/accounts";
 	}
@@ -70,6 +74,7 @@ public class FileIntegrationTests extends PointWatcher {
 	@After
 	public void tearDown() throws IOException {
 		Files.delete(Paths.get(AccountDaoFile.fileLocation));
+		Files.delete(Paths.get(UserDaoFile.fileLocation));
 	}
 	
 	@Test
@@ -147,6 +152,8 @@ public class FileIntegrationTests extends PointWatcher {
 	public void testAddAndGetUser() {
 		User actual = udao.getUser(testUser.getId());
 		assertEquals(testUser, actual);
+		System.out.println("Test User: " + testUser.toString());
+		System.out.println("actual: " + actual.toString());
 	}
 	
 	@Test
@@ -165,7 +172,8 @@ public class FileIntegrationTests extends PointWatcher {
 	@Points(1)
 	public void testUpdateUser() {
 		testUser.setFirstName("Charlie");
-		udao.updateUser(testUser);
+		udao.updateUser(testUser);;
+
 		assertEquals(udao.getUser(testUser.getId()).getFirstName(), "Charlie");
 	}
 	

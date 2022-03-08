@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import com.revature.PointWatcher;
+import com.revature.Points;
 import com.revature.beans.Account;
 import com.revature.beans.Transaction;
 import com.revature.beans.User;
