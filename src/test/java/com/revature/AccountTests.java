@@ -94,13 +94,16 @@ public class AccountTests extends PointWatcher {
 		Account testActTwo = getNewApprovedAccount();
 		testActTwo.setBalance(10d);
 		actSrv.transfer(testActOne, testActTwo, 30d);
+		System.out.println(testActOne.getBalance());
+		System.out.println(testActTwo.getBalance());
 		assertEquals(testActOne.getBalance(), 70d, 0.01);
 		assertEquals(testActTwo.getBalance(), 40d, 0.01);
 		verify(dao, times(1)).updateAccount(testActOne);
 		verify(dao, times(1)).updateAccount(testActTwo);
 	}
 	
-	@Test(expected=UnsupportedOperationException.class)
+	//WRONG EXCEPTION WAS WRITTEN HERE. THIS WOULD BE AN OVERDRAFT EXCEPTION IT WAS A UNSUPPORTEDOPERATIONEXCEPTION
+	@Test(expected=OverdraftException.class)
 	@Points(1)
 	public void testInvalidTransfer() {
 		Account testActOne = getNewApprovedAccount();

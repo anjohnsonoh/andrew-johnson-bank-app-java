@@ -57,13 +57,11 @@ public class UserDaoDB implements UserDao {
 			pstmt.setString(3, user.getPassword());
 			pstmt.setString(4, user.getFirstName());
 			pstmt.setString(5, user.getLastName());
-			System.out.println(user.getUserType());
 			if(user.getUserType() == null)
 				user.setUserType(UserType.CUSTOMER);
 			pstmt.setString(6, user.getUserType().name());
 			pstmt.setBlob(7, (Blob)user.getAccounts());
 			pstmt.executeUpdate();
-			System.out.println(pstmt.toString());
 			return user;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -74,6 +72,8 @@ public class UserDaoDB implements UserDao {
 	}
 
 	public User getUser(Integer userId) {
+		
+		conn = ConnectionUtil.getConnection();
 		String query = "select * from user where id="+userId;
 		User user = new User();
 		try {
@@ -81,6 +81,7 @@ public class UserDaoDB implements UserDao {
 			rs = stmt.executeQuery(query);
 			if(rs.next())
 			{
+				
 				user.setId(rs.getInt("id"));
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
@@ -107,16 +108,17 @@ public class UserDaoDB implements UserDao {
 	}
 
 	public User getUser(String username, String pass) {
-		for (User user : users) {
-			if(user.getUsername() == username && user.getPassword() == pass)
+		List<User> myUsers = getAllUsers();
+		for (User user : myUsers) {
+			if(user.getUsername().equals(username) && user.getPassword().equals(pass))
 				return user;
-		}// TODO Auto-generated method stub
+		}
 		return null;
 	}
 
 	public List<User> getAllUsers() {
+		conn = ConnectionUtil.getConnection();
 		List<User> userList = new ArrayList<User>();
-		
 		String q = "select * from user";
 		try {
 			stmt = conn.createStatement();
@@ -131,7 +133,7 @@ public class UserDaoDB implements UserDao {
 				user.setLastName(rs.getString("lastName"));
 				if(rs.getString("userType").equals("CUSTOMER"))
 					user.setUserType(UserType.CUSTOMER);
-				else if (rs.getString("type").equals("EMPLOYEE"))
+				else if (rs.getString("userType").equals("EMPLOYEE"))
 					user.setUserType(UserType.EMPLOYEE);
 				else
 					System.out.println("NO TYPE FOUND");
@@ -148,27 +150,34 @@ public class UserDaoDB implements UserDao {
 	}
 
 	public User updateUser(User u) {
-		for (User user : users) {
-			if(user.getUsername() == u.getUsername() && user.getPassword() == u.getPassword())
-				{
-					user = u;
-					return u;
-				}
+		conn = ConnectionUtil.getConnection();
+		String q = "UPDATE user set password=(?), firstName=(?), lastName=(?), userType=(?), accounts=(?) WHERE id=(?)";
+		try {
+			pstmt = conn.prepareStatement(q);
+			pstmt.setInt(6, u.getId());
+			pstmt.setString(1, u.getPassword());
+			pstmt.setString(2, u.getFirstName());
+			pstmt.setString(3, u.getLastName());
+			pstmt.setString(4, u.getUserType().toString());
+			pstmt.setBlob(5, (Blob)u.getAccounts());
+			pstmt.executeUpdate();
+			return getUser(u.getId());
+		} catch (SQLException e) {
+			// TODO: handle exception
 		}
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public boolean removeUser(User u) {
-		int i = 0;
-		for (User user : users) {
-			if(user.getUsername() == u.getUsername() && user.getPassword() == u.getPassword())
-			{
-				users.remove(i);
-				return true;
-			}
-			i++;
-				
+		String q = "DELETE FROM user WHERE id=(?)";
+		try {
+			pstmt = conn.prepareStatement(q);
+			pstmt.setInt(1, u.getId());
+			pstmt.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			// TODO: handle exception
 		}
 		// TODO Auto-generated method stub
 		return false;

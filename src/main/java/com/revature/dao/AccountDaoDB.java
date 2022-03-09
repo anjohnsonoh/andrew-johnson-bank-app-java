@@ -28,6 +28,7 @@ public class AccountDaoDB implements AccountDao {
 	private String table_name = "Account";
 	
 	private List<Account> accounts = new ArrayList<Account>();
+	/*
 	public void Init()
 	{
 		String q = "DELETE FROM account;";
@@ -35,7 +36,6 @@ public class AccountDaoDB implements AccountDao {
 		try {
 			Statement s = conn.createStatement();
 			s.executeUpdate(q);
-			System.out.println(q);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,7 +54,9 @@ public class AccountDaoDB implements AccountDao {
 	    }
 	    return false;
 	    	
-	}
+	}*/
+	
+	//Adds an account into the db called from AccountService.java
 	public Account addAccount(Account a) {
 		String q = "INSERT INTO account (accountId, ownerId, balance, type, approved, transactions) values (?,?,?,?,?,?)";
 		conn = ConnectionUtil.getConnection();
@@ -67,7 +69,6 @@ public class AccountDaoDB implements AccountDao {
 			pstmt.setBoolean(5, a.isApproved());
 			pstmt.setBlob(6, (Blob)a.getTransactions());
 			pstmt.executeUpdate();
-			System.out.println(pstmt.toString());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,8 +77,10 @@ public class AccountDaoDB implements AccountDao {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	//Gets a specific account based on ID
 	public Account getAccount(Integer actId) {
+		conn = ConnectionUtil.getConnection();
 		String query = "select * from account where accountId="+actId;
 		Account act = new Account();
 		try {
@@ -108,7 +111,9 @@ public class AccountDaoDB implements AccountDao {
 		return null;
 	}
 
+	//Returns a list of all accounts on the database
 	public List<Account> getAccounts() {
+		conn = ConnectionUtil.getConnection();
 		List<Account> accountList = new ArrayList<Account>();
 		String query = "select * from account";
 
@@ -120,7 +125,6 @@ public class AccountDaoDB implements AccountDao {
 				act.setId(rs.getInt("accountId"));
 				act.setOwnerId(rs.getInt("ownerId"));
 				act.setBalance(rs.getDouble("balance"));
-				System.out.println(rs.getString("type"));
 				if(rs.getString("type").equals("CHECKING"))
 					act.setType(AccountType.CHECKING);
 				else if (rs.getString("type").equals("SAVINGS"))
@@ -139,16 +143,19 @@ public class AccountDaoDB implements AccountDao {
 		return accountList;
 	}
 
+	//Gets all accounts based that share owner id with the user, if not found, return null
 	public List<Account> getAccountsByUser(User u) {
 		// TODO Auto-generated method stub
+		conn = ConnectionUtil.getConnection();
 		List<Account> userAccounts = new ArrayList<Account>();
 		String query = "select * from account where ownerId="+u.getId();
-		Account act = new Account();
+		
 		try {
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery(query);
-			if(rs.next())
+			while(rs.next())
 			{
+				Account act = new Account();
 				act.setId(rs.getInt("accountId"));
 				act.setOwnerId(rs.getInt("ownerId"));
 				act.setBalance(rs.getDouble("balance"));
@@ -172,6 +179,7 @@ public class AccountDaoDB implements AccountDao {
 	}
 
 	public Account updateAccount(Account a) {
+		conn = ConnectionUtil.getConnection();
 		String q = "UPDATE account set ownerId=(?), balance=(?), type=(?), approved=(?), transactions=(?) WHERE accountId=(?)";
 		try {
 			pstmt = conn.prepareStatement(q);
@@ -182,7 +190,6 @@ public class AccountDaoDB implements AccountDao {
 			pstmt.setBoolean(4, a.isApproved());
 			pstmt.setBlob(5, (Blob)a.getTransactions());
 			pstmt.executeUpdate();
-			System.out.println(pstmt.toString());
 			return getAccount(a.getId());
 		} catch (SQLException e) {
 			// TODO: handle exception
@@ -192,6 +199,7 @@ public class AccountDaoDB implements AccountDao {
 	}
 
 	public boolean removeAccount(Account a) {
+		conn = ConnectionUtil.getConnection();
 		String q = "DELETE FROM account WHERE accountID=(?)";
 		try {
 			pstmt = conn.prepareStatement(q);

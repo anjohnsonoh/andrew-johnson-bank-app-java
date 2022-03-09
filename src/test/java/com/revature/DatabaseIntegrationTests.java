@@ -144,6 +144,8 @@ public class DatabaseIntegrationTests extends PointWatcher {
 		udao.addUser(second);
 		List<User> allUsers = udao.getAllUsers();
 		assertEquals(allUsers.size(), 2);
+		//Added this line as well
+		udao.removeUser(second);
 	}
 	
 	@Test

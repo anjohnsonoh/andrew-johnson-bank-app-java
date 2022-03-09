@@ -20,7 +20,7 @@ import com.revature.beans.User;
  */
 public class AccountDaoFile implements AccountDao {
 	// use this file location to persist the data to
-	public static String fileLocation = "";
+	public static String fileLocation = "src\\accounts.txt";
 	private static File myFile = new File(fileLocation);
 	private static List<Account> accountsList = new ArrayList<Account>();
 	public void write()
